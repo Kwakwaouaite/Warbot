@@ -174,8 +174,6 @@ to goRedHarvester
       plokwa-go-to [xcor] of b [ycor] of b
       ]
   ]
-  ;; rentre à la base si certaines conditions sont vérifiées
-  red-team-go-back-to-base
   ;; cherche à manger
   ;red-team-harvesters-go-and-eat
   
@@ -223,11 +221,9 @@ end
 ; Cherche de la nourriture et la ramène
 ;
 to plokwa-find-food
-  
-  
   ifelse ((mem1 = 0) and (mem2 = 0 ))
   [
-    plokwa-go-to xcor (ycor + 5)
+    plokwa-go-to [xcor] of mem3 (ycor + 5)
   ][
       plokwa-go-to mem1 mem2
   ]
@@ -241,24 +237,34 @@ to plokwa-go-to [ x y ]
   set heading towardsxy x y
   ifelse (free-ahead? speed = nobody) [ forward-move speed ]
   [
-    let xDir x - xcor
-    let yDir y - ycor
-    set heading towardsxy ( x + yDir) (y - xDir)
+    ;let xDir x - xcor
+    ;let yDir y - ycor
+    set heading (towardsxy x y) + 90 ;( x + yDir) (y - xDir)
     ifelse (free-ahead? speed = nobody) [ forward-move speed ]
     [
-      set heading towardsxy ( x - yDir) (y + xDir)
-      if (free-ahead? speed = nobody) [ forward-move speed ]
+      set heading (towardsxy x y) + 90;( x - yDir) (y + xDir)
+      ifelse (free-ahead? speed = nobody) [ forward-move speed ]
+      [ rt random 360 if (free-ahead? 2 = nobody) [ forward-move speed ]]
     ]
   ]
 end
 
 to plokwa-go-back-to-harvest
   let b min-one-of my-bases [ distance myself ]
-      if (b != nobody) [
-        ;; si le robot est à moins de 10 de la base
-        if (distance b < 10)
-          [ plant-seeds color max-seeds ]
+  if (b != nobody) [
+    ;; si le robot est à moins de 10 de la base
+    ifelse (distance b < 5)
+      [ 
+        plant-seeds color max-seeds
+        set heading towards b - 45 - random 90
       ]
+    [
+      set heading towards b
+    ]
+    ifelse (free-ahead? speed = nobody)  [ forward-move speed ][ rt random 360 if (free-ahead? 2 = nobody) [ forward-move speed ]]
+    
+    
+  ]
 end
 
 ;
@@ -312,10 +318,13 @@ end
 
 ;; procedure pour initialiser les rocket-launchers rouges
 to initRedHarvester
+  let b min-one-of my-bases [ distance myself ]
+  set mem3 b
 end
 
 ;; procedure pour initialiser les bases rouges
 to initRedBase
   beep
   new-Explorer 4 self
+  new-Harvester 3 self
 end
