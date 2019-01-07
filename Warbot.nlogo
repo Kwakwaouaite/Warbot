@@ -1626,6 +1626,7 @@ Pour vous aider a concevoir votre equipe, vous pourrez consulter les equipes pro
 Notre stratégie est avant tout défensive. Se battre ne nous semblait pas la priorité, nous avons donc préféré cultiver nos plants bien gentillement pour augmenter ainsi notre efficacité.
 
 Pour ce qui est de chaque type de vaisseau:
+
 - Explorateurs : Nous avons construit un quadrillage de notre zone du jeu et envoyant des explorateurs dans les diagonals de chaque base.Ces vaisseaux restent fixes au limites de la perception de la base. Ainsi nous couvront un grand espace. Ces explorateurs sont capable de retransmettre aux harvester la position d'éventuels burgers.
 
 - Harvester : il en existe deux type, ceux qui cultivent et ceux qui déplacent les blocs.

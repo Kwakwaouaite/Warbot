@@ -164,8 +164,18 @@ to goRedRocketLauncher
   [
     plokwa-go-to xcor + 5 ([ycor] of b + mem0 - 1 + random 2)
   ] 
-
-  if ((energy > 3000) and (nb-missiles < 5)) [ new-missile 1 ]
+  
+  let t min-one-of (plokwa-perceive-robots-target color) [distance self]
+  if (t!= nobody)
+  [
+    if (distance t < detection-range)
+    [ launch-rocket towards t 
+      launch-faf t   
+    ]
+    
+    if ((energy > 300) and (nb-missiles < 5)) [ new-missile 1 ]
+    if ((energy > 300) and (nb-fafs < 4)) [ new-faf 1 ]
+  ]
 end
 
 to goRedHarvester
@@ -265,11 +275,9 @@ to plokwa-avoidXYPerpendicular [ x y ]
   set heading towardsxy (x - yDir) ( y + xDir)
   ifelse (free-ahead? speed = nobody) [ forward-move speed ]
       [
-        show 1
       set heading towardsxy ( x + yDir) (y - xDir)
       ifelse (free-ahead? speed = nobody) [ forward-move speed ]
         [
-          show 2
           set heading towardsxy (x - xDir) (y - yDir)
           ifelse (free-ahead? speed = nobody) [ forward-move speed ][ rt random 360 if (free-ahead? 2 = nobody) [ forward-move speed ]]
         ]
@@ -385,6 +393,13 @@ end
 ;
 to-report plokwa-perceive-missile
   report Missiles in-radius 8
+end
+
+;
+; renvoie les agens de type Harvester ou Base ennemi dans le rayon de perception de l'agent
+;
+to-report plokwa-perceive-robots-target [ c ]
+  report turtles in-radius detection-range with [ (color != c) and ((breed = Explorers) or (breed = Bases))]
 end
 
 
