@@ -107,6 +107,7 @@ to red-team-shoot
 end
 
 to goRedExplorer
+  plokwa-need-refuel
   ;let m min-one-of plokwa-perceive-missile [ distance myself ]
   ifelse (MEM5 = 1)
   [
@@ -155,6 +156,8 @@ end
 to goRedHarvester
   ;let m min-one-of plokwa-perceive-missile [ distance myself ]
   ;if ( m != nobody ) [ plokwa-avoidXYPerpendicular [xcor] of m [ycor] of m]
+  
+  plokwa-need-refuel
   
   let b min-one-of perceive-food [ distance self]
   ifelse (b = nobody) [
@@ -222,7 +225,7 @@ end
 ; Cherche de la nourriture et la ramène
 ;
 to plokwa-find-food
-  ifelse ((mem1 = 0) and (mem2 = 0 ))
+  ifelse ((mem1 = -10000) and (mem2 = -10000 ))
   [
     plokwa-go-to [xcor] of mem3 (ycor + 5)
   ][
@@ -251,10 +254,11 @@ to plokwa-go-to [ x y ]
 end
 
 to plokwa-go-back-to-harvest
-  let b min-one-of my-bases [ distance myself ]
+  ;let b min-one-of my-bases [ distance myself ]
+  let b mem3
   if (b != nobody) [
-    ;; si le robot est à moins de 10 de la base
-    ifelse (distance b < 5)
+    ;; si le robot est à moins de 6 de la base
+    ifelse (distance b < 6)
       [ 
         plant-seeds color max-seeds
         set heading towards b - 45 - random 90
@@ -268,6 +272,29 @@ to plokwa-go-back-to-harvest
   ]
 end
 
+to plokwa-need-refuel
+  if (energy < 500)
+  [
+    let b min-one-of my-bases [ distance myself ]
+    if (b != nobody) [
+      ifelse (distance b <= 2)
+      [ 
+        if (carrying-food? > 700) [ give-food b carrying-food? ]
+        if (energy < 500) [ red-team-ask-for-energy b 500 ]
+        if ((Breed = RocketLaunchers) and (nb-missiles = 0)) [
+          red-team-ask-for-energy b 500
+          new-missile 5
+        ]
+      ]
+      [
+        set heading towards b - 20 + random 40
+        if count turtles in-cone 2 90 with [ (breed != Burgers) and (breed != Perceptions) ] != 1 [ rt random 90 ]
+        forward-move speed
+      ]
+    ]
+  ]
+end
+  
 ;
 ; renvoie les agents de type Missile dans le rayon de perception de l'agent
 ;
@@ -322,6 +349,8 @@ end
 to initRedHarvester
   let b min-one-of my-bases [ distance myself ]
   set mem3 b
+  set mem1 -10000
+  set mem2 -10000
 end
 
 ;; procedure pour initialiser les bases rouges
