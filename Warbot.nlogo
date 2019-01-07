@@ -1335,7 +1335,7 @@ SWITCH
 132
 display-range?
 display-range?
-1
+0
 1
 -1000
 
@@ -1369,7 +1369,7 @@ CHOOSER
 display?
 display?
 "none" "energy" "missiles" "carrying-food?" "mem0" "mem1" "mem2" "mem3" "mem4" "mem5"
-2
+1
 
 MONITOR
 0

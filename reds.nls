@@ -131,6 +131,16 @@ to goRedExplorer
     []
   ]
   
+  let foodSeen min-one-of perceive-food [distance myself]
+  let harvesterSeen perceive-specific-robots color Harvesters 
+  if(foodSeen != nobody and count harvesterSeen != 0)
+  [
+    ask harvesterSeen [if (MEM1 = -10000 and MEM2 = -10000) [set MEM1  [xcor] of foodSeen set MEM2 [ycor] of foodSeen]]
+  ]
+    
+    
+  
+  
   ;red-team-go-back-to-base
   ;red-team-go-and-eat
 
@@ -245,7 +255,6 @@ end
 ;; procedure pour initialiser les explorers rouges
 to initRedExplorer
   let tempBase perceive-base( color )
-  show tempBase
   let memLu [MEM9] of tempBase
   ifelse (memLu = [0])
   [ 
