@@ -169,7 +169,8 @@ end
 
 to goRedBase
   set label energy
-  if (perceive-food = nobody)[ plokwa-createSuicide ]
+  let n count perceive-food
+  if (n = 0)[ plokwa-createSuicide ]
   let t one-of perceive-specific-robots2 ennemy1 ennemy2 rocketlaunchers
   if (t != nobody) [
     launch-rocket towards t
@@ -244,6 +245,7 @@ end
 ;; procedure pour initialiser les explorers rouges
 to initRedExplorer
   let tempBase perceive-base( color )
+  show tempBase
   let memLu [MEM9] of tempBase
   ifelse (memLu = [0])
   [ 
