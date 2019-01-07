@@ -108,10 +108,28 @@ end
 
 to goRedExplorer
   ;let m min-one-of plokwa-perceive-missile [ distance myself ]
-  
-  ifelse ( xcor = MEM0 and ycor = MEM1)
-  [ ]
-  [ plokwa-go-to MEM0 MEM1]
+  ifelse (MEM5 = 1)
+  [
+    ifelse ( xcor = MEM0 and ycor = MEM1)
+    [ ]
+    [
+      plokwa-go-to MEM0 MEM1
+    ]
+  ]
+  [
+    ifelse (MEM5 = 2) 
+    [
+      ifelse (xcor < (MEM0 - 2) and ycor < (MEM1 - 2))
+      [
+        set heading towardsxy MEM0 MEM1
+        forward-move speed
+      ]
+      [
+        plokwa-go-to MEM0 MEM1
+      ]
+    ]
+    []
+  ]
   
   ;red-team-go-back-to-base
   ;red-team-go-and-eat
@@ -144,18 +162,25 @@ to goRedHarvester
   plokwa-find-food
   
   ;; rentre à la base si certaines conditions sont vérifiées
-  ;red-team-go-back-to-base
+  red-team-go-back-to-base
   ;; cherche à manger
-  ;red-team-harvesters-go-and-eat
+  red-team-harvesters-go-and-eat
 end
 
 to goRedBase
   set label energy
-  ;;if (energy > 12000) [ new-Explorer 1 self ]
+  if (perceive-food = nobody)[ plokwa-createSuicide ]
   let t one-of perceive-specific-robots2 ennemy1 ennemy2 rocketlaunchers
   if (t != nobody) [
     launch-rocket towards t
   ]
+  
+end
+
+to plokwa-createSuicide
+  new-Explorer 1 self
+  let tmp perceive-specific-robots color Explorers 
+  ask tmp [ if (MEM5 = 0) [give-energy myself 1000]]
 end
 
 ;
@@ -167,9 +192,11 @@ to plokwa-avoidXYPerpendicular [ x y ]
   set heading towardsxy (x - yDir) ( y + xDir)
   ifelse (free-ahead? speed = nobody) [ forward-move speed ]
       [
+        show 1
       set heading towardsxy ( x + yDir) (y - xDir)
       ifelse (free-ahead? speed = nobody) [ forward-move speed ]
         [
+          show 2
           set heading towardsxy (x - xDir) (y - yDir)
           ifelse (free-ahead? speed = nobody) [ forward-move speed ][ rt random 360 if (free-ahead? 2 = nobody) [ forward-move speed ]]
         ]
@@ -180,11 +207,10 @@ end
 ; Cherche de la nourriture et la ramène
 ;
 to plokwa-find-food
-  ifelse ((mem1 = 0) and (mem2 = 0 ))
+  if ( not ((mem1 = 0) and (mem2 = 0 )))
   [
-    plokwa-go-to xcor (ycor + 5)
-  ][
-    plokwa-go-to mem1 mem2
+    set heading towardsxy xcor (ycor + 1)
+    ;ifelse (free-ahead? speed = nobody) [ forward-move speed ]
   ]
 end
 
@@ -202,8 +228,7 @@ to plokwa-go-to [ x y ]
     ifelse (free-ahead? speed = nobody) [ forward-move speed ]
     [
       set heading towardsxy ( x - yDir) (y + xDir)
-      ifelse (free-ahead? speed = nobody) [ forward-move speed ]
-      [ rt random 360 if (free-ahead? 2 = nobody) [ forward-move speed ]]
+      if (free-ahead? speed = nobody) [ forward-move speed ]
     ]
   ]
 end
@@ -220,25 +245,36 @@ end
 to initRedExplorer
   let tempBase perceive-base( color )
   let memLu [MEM9] of tempBase
-  show memLu
-  ifelse (memLu = [0])[ 
-    set MEM5 1
-    set MEM0 (xcor + 0.70710678118 * 10)
-    set MEM1 (ycor + 0.70710678118 * 10)]
+  ifelse (memLu = [0])
   [ 
-    ifelse (memLu = [1])[ 
-      set MEM5 1
-      set MEM0 (xcor + 0.70710678118 * 10)
-      set MEM1 (ycor - 0.70710678118 * 10)]
+    set MEM5 1
+    set MEM0 (xcor + 0.70710678118 * 9)
+    set MEM1 (ycor + 0.70710678118 * 9)
+  ]
+  [ 
+    ifelse (memLu = [1])
     [ 
-      ifelse (memLu = [2])[ 
-        set MEM5 1
-        set MEM0 (xcor - 0.70710678118 * 10)
-        set MEM1 (ycor - 0.70710678118 * 10)]
+      set MEM5 1
+      set MEM0 (xcor + 0.70710678118 * 9)
+      set MEM1 (ycor - 0.70710678118 * 9)
+    ]
+    [ 
+      ifelse (memLu = [2])
       [ 
         set MEM5 1
-        set MEM0 (xcor - 0.70710678118 * 10)
-        set MEM1 (ycor + 0.70710678118 * 10)]]]
+        set MEM0 (xcor - 0.70710678118 * 9)
+        set MEM1 (ycor - 0.70710678118 * 9)
+      ]
+      [ 
+        ifelse (memLu = [3])
+        [
+          set MEM5 1
+          set MEM0 (xcor - 0.70710678118 * 9)
+          set MEM1 (ycor + 0.70710678118 * 9)
+        ][]
+      ]
+    ]
+  ]
   ask tempBase [set MEM9 (MEM9 + 1)]    
 end
 
