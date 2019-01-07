@@ -253,6 +253,22 @@ to plokwa-go-to [ x y ]
   ]
 end
 
+to plokwa-go-to-s [ x y ]
+  set heading towardsxy x y
+  ifelse (free-ahead? (speed / 2) = nobody) [ forward-move (speed / 2) ]
+  [
+    ;let xDir x - xcor
+    ;let yDir y - ycor
+    set heading (towardsxy x y) + 90 ;( x + yDir) (y - xDir)
+    ifelse (free-ahead? (speed / 2) = nobody) [ forward-move (speed / 2) ]
+    [
+      set heading (towardsxy x y) + 90;( x - yDir) (y + xDir)
+      ifelse (free-ahead? (speed / 2) = nobody) [ forward-move (speed / 2) ]
+      [ rt random 360 if (free-ahead? (speed / 2) = nobody) [ forward-move (speed / 2) ]]
+    ]
+  ]
+end
+
 to plokwa-go-back-to-harvest
   ;let b min-one-of my-bases [ distance myself ]
   let b mem3
@@ -273,7 +289,7 @@ to plokwa-go-back-to-harvest
 end
 
 to plokwa-need-refuel
-  if (energy < 500)
+  if (energy < 500 or carrying-food? > 3000)
   [
     let b min-one-of my-bases [ distance myself ]
     if (b != nobody) [
@@ -287,9 +303,15 @@ to plokwa-need-refuel
         ]
       ]
       [
-        set heading towards b - 20 + random 40
-        if count turtles in-cone 2 90 with [ (breed != Burgers) and (breed != Perceptions) ] != 1 [ rt random 90 ]
-        forward-move speed
+        ;set heading towards b - 20 + random 40
+        ;;if count turtles in-cone 2 90 with [ (breed != Burgers) and (breed != Perceptions) ] != 1 [ rt random 90 ]
+        ifelse (distance b > 4)
+        [
+          plokwa-go-to [xcor] of b [ycor] of b
+        ]
+        [
+          plokwa-go-to-s [xcor] of b [ycor] of b
+        ]
       ]
     ]
   ]
@@ -343,6 +365,8 @@ end
 
 ;; procedure pour initialiser les rocket-launchers rouges
 to initRedRocketLauncher
+  let b min-one-of my-bases [ distance myself ]
+  set mem3 b
 end
 
 ;; procedure pour initialiser les rocket-launchers rouges
