@@ -2,7 +2,10 @@
 ;;
 ;; le code de l'equipe rouge basique
 ;; préfixe : red-team
-;;
+
+;;MEM5 -> nbExploreur
+;;MEM6 -> nbHarvester
+;;MEM7 -> nbRocketLauncher
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to red-team-ask-for-energy [ b n ]
@@ -106,7 +109,9 @@ end
 to goRedExplorer
   ;let m min-one-of plokwa-perceive-missile [ distance myself ]
   
-  plokwa-go-to 0 0
+  ifelse ( xcor = MEM0 and ycor = MEM1)
+  [ ]
+  [ plokwa-go-to MEM0 MEM1]
   
   ;red-team-go-back-to-base
   ;red-team-go-and-eat
@@ -213,6 +218,28 @@ end
 
 ;; procedure pour initialiser les explorers rouges
 to initRedExplorer
+  let tempBase perceive-base( color )
+  let memLu [MEM9] of tempBase
+  show memLu
+  ifelse (memLu = [0])[ 
+    set MEM5 1
+    set MEM0 (xcor + 0.70710678118 * 10)
+    set MEM1 (ycor + 0.70710678118 * 10)]
+  [ 
+    ifelse (memLu = [1])[ 
+      set MEM5 1
+      set MEM0 (xcor + 0.70710678118 * 10)
+      set MEM1 (ycor - 0.70710678118 * 10)]
+    [ 
+      ifelse (memLu = [2])[ 
+        set MEM5 1
+        set MEM0 (xcor - 0.70710678118 * 10)
+        set MEM1 (ycor - 0.70710678118 * 10)]
+      [ 
+        set MEM5 1
+        set MEM0 (xcor - 0.70710678118 * 10)
+        set MEM1 (ycor + 0.70710678118 * 10)]]]
+  ask tempBase [set MEM9 (MEM9 + 1)]    
 end
 
 ;; procedure pour initialiser les rocket-launchers rouges
@@ -226,5 +253,5 @@ end
 ;; procedure pour initialiser les bases rouges
 to initRedBase
   beep
-  new-Explorer 1 self
+  new-Explorer 4 self
 end
