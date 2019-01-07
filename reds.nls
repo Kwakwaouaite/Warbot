@@ -3,9 +3,9 @@
 ;; le code de l'equipe rouge basique
 ;; préfixe : red-team
 
-;;MEM5 -> nbExploreur
-;;MEM6 -> nbHarvester
-;;MEM7 -> nbRocketLauncher
+;;MEM9 -> nbExploreur
+;;MEM10 -> nbHarvester
+;;MEM11 -> nbRocketLauncher
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to red-team-ask-for-energy [ b n ]
@@ -165,27 +165,70 @@ end
 to goRedHarvester
   ;let m min-one-of plokwa-perceive-missile [ distance myself ]
   ;if ( m != nobody ) [ plokwa-avoidXYPerpendicular [xcor] of m [ycor] of m]
-  
-  let b min-one-of perceive-food [ distance self]
-  ifelse (b = nobody) [
-  ;; Dans l'etat un on cherche de la nourriture pour la planter
-    ifelse (carrying-food? > 200)
-    [
-      plokwa-go-back-to-harvest
+  ifelse (MEM5 = 1)
+  [
+    let b min-one-of perceive-food [ distance self]
+    ifelse (b = nobody) [
+      ;; Dans l'etat un on cherche de la nourriture pour la planter
+      ifelse (carrying-food? > 200)
+      [
+        plokwa-go-back-to-harvest
+      ]
+      [
+        plokwa-find-food
+      ]
     ]
     [
-      plokwa-find-food
-    ]
-    
-  ][
-    ifelse (distance b) <= 2
+      ifelse (distance b) <= 2
       [ take b ]
       [ set heading towards b - 20 + random 40
-      plokwa-go-to [xcor] of b [ycor] of b
+        plokwa-go-to [xcor] of b [ycor] of b
       ]
+    ]
   ]
-  ;; cherche à manger
-  ;red-team-harvesters-go-and-eat
+  [
+    ifelse (carrying-wall? = 0)
+    [
+      ifelse (distance mem3 > 9)
+      [
+        plokwa-go-to [xcor] of mem3 [ycor] of mem3
+      ]
+      [        
+        let w min-one-of perceive-walls [ distance self]
+        ifelse (w = nobody)
+        [
+          plokwa-find-wall
+        ]
+        [
+          ifelse (distance w < 2)
+          [
+            take-wall w
+          ]
+          [
+            ifelse (mem1 = 0 and mem2 = 0)
+            [
+              set mem1 [xcor] of w
+              set mem2 [ycor] of w
+              plokwa-go-to mem1 mem2
+            ]
+            [
+              plokwa-go-to mem1 mem2
+            ]           
+          ]
+        ]
+      ]
+    ]
+    [
+      ifelse (distance mem3 < 9)
+      [
+        plokwa-go-to (xcor - 2)  ycor
+      ]
+      [
+        drop-wall
+      ]
+    ]
+  ]
+    
   
   
   
@@ -199,7 +242,7 @@ to goRedBase
   if (t != nobody) [
     launch-rocket towards t
   ]
-  
+  if (nb-missiles < 100) and (energy > 1000) [ new-missile 100 ]  
 end
 
 to plokwa-createSuicide
@@ -240,6 +283,14 @@ to plokwa-find-food
   ]
 end
 
+to plokwa-find-wall
+  ifelse ((mem1 = 0) and (mem2 = 0 ))
+  [
+    plokwa-go-to ([xcor] of mem3) (([ycor] of mem3) + 5)
+  ][
+      plokwa-go-to mem1 mem2
+  ]
+end
 
 ;
 ; Va au point de coordonnées x y en évitant les obstacles
@@ -331,11 +382,20 @@ end
 to initRedHarvester
   let b min-one-of my-bases [ distance myself ]
   set mem3 b
+  let nbH [MEM10] of b
+  if (nbH < 4)
+  [ 
+    set MEM5 1
+  ]
+  if (nbH = 5)
+  [
+    set MEM5 2
+  ]
 end
 
 ;; procedure pour initialiser les bases rouges
 to initRedBase
   beep
   new-Explorer 4 self
-  new-Harvester 3 self
+  new-Harvester 4 self
 end
