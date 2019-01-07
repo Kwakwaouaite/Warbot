@@ -133,15 +133,31 @@ to goRedHarvester
   ;let m min-one-of plokwa-perceive-missile [ distance myself ]
   ;if ( m != nobody ) [ plokwa-avoidXYPerpendicular [xcor] of m [ycor] of m]
   
-  
-  
+  let b min-one-of perceive-food [ distance self]
+  ifelse (b = nobody) [
   ;; Dans l'etat un on cherche de la nourriture pour la planter
-  plokwa-find-food
-  
+    ifelse (carrying-food? > 200)
+    [
+      plokwa-go-back-to-harvest
+    ]
+    [
+      plokwa-find-food
+    ]
+    
+  ][
+    ifelse (distance b) <= 2
+      [ take b ]
+      [ set heading towards b - 20 + random 40
+      plokwa-go-to [xcor] of b [ycor] of b
+      ]
+  ]
   ;; rentre à la base si certaines conditions sont vérifiées
   ;red-team-go-back-to-base
   ;; cherche à manger
   ;red-team-harvesters-go-and-eat
+  
+  
+  
 end
 
 to goRedBase
@@ -175,11 +191,13 @@ end
 ; Cherche de la nourriture et la ramène
 ;
 to plokwa-find-food
+  
+  
   ifelse ((mem1 = 0) and (mem2 = 0 ))
   [
     plokwa-go-to xcor (ycor + 5)
   ][
-    plokwa-go-to mem1 mem2
+      plokwa-go-to mem1 mem2
   ]
 end
 
@@ -201,6 +219,15 @@ to plokwa-go-to [ x y ]
       [ rt random 360 if (free-ahead? 2 = nobody) [ forward-move speed ]]
     ]
   ]
+end
+
+to plokwa-go-back-to-harvest
+  let b min-one-of my-bases [ distance myself ]
+      if (b != nobody) [
+        ;; si le robot est à moins de 10 de la base
+        if (distance b < 10)
+          [ plant-seeds color max-seeds ]
+      ]
 end
 
 ;
