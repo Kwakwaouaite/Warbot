@@ -155,10 +155,15 @@ to goRedExplorer
 end
 
 to goRedRocketLauncher
-  red-team-go-back-to-base
-  red-team-select-target
-  red-team-shoot
-  red-team-go-and-eat
+  ;red-team-go-back-to-base
+  ;red-team-select-target
+  ;red-team-shoot
+  ;red-team-go-and-eat
+  let b mem3
+  if (b != nobody)
+  [
+    plokwa-go-to xcor + 5 ([ycor] of b + mem0 - 1 + random 2)
+  ] 
 
   if ((energy > 3000) and (nb-missiles < 5)) [ new-missile 1 ]
 end
@@ -424,6 +429,7 @@ end
 to initRedRocketLauncher
   let b min-one-of my-bases [ distance myself ]
   set mem3 b
+  set mem0 ( (- 1 + (2 * random 2)) * 4)
 end
 
 ;; procedure pour initialiser les rocket-launchers rouges
@@ -448,4 +454,5 @@ to initRedBase
   beep
   new-Explorer 4 self
   new-Harvester 4 self
+  new-RocketLauncher 2 self 
 end
