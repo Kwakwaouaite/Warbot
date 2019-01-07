@@ -126,6 +126,9 @@ to goRedRocketLauncher
 end
 
 to goRedHarvester
+  let m min-one-of plokwa-perceive-missile [ distance myself ]
+  if ( m != nobody ) [ plokwa-avoidXYPerpendicular [xcor] of m [ycor] of m]
+  
   ;; rentre à la base si certaines conditions sont vérifiées
   red-team-go-back-to-base
   ;; cherche à manger
@@ -134,11 +137,33 @@ end
 
 to goRedBase
   set label energy
-  if (energy > 12000) [ new-RocketLauncher 1 self ]
+  if (energy > 12000) [ new-Explorer 1 self ]
   let t one-of perceive-specific-robots2 ennemy1 ennemy2 rocketlaunchers
   if (t != nobody) [
     launch-rocket towards t
   ]
+end
+
+to plokwa-avoidXYPerpendicular [ x y ]
+  let xDir x - xcor
+  let yDir y - ycor
+  set heading towardsxy (- yDir) ( xDir)
+  ifelse (free-ahead? speed = nobody) [ forward-move speed ]
+      [
+      set heading towardsxy ( yDir) (- xDir)
+      ifelse (free-ahead? speed = nobody) [ forward-move speed ]
+        [
+          set heading towardsxy (- xDir) (- yDir)
+          ifelse (free-ahead? speed = nobody) [ forward-move speed ][ rt random 360 if (free-ahead? 2 = nobody) [ forward-move speed ]]
+        ]
+      ]
+end
+
+;
+; renvoie les agents de type Burger dans le rayon de perception de l'agent
+;
+to-report plokwa-perceive-missile
+  report Missiles in-radius detection-range
 end
 
 ;; procedure pour initialiser les explorers rouges
