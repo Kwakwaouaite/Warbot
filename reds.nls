@@ -76,7 +76,7 @@ to goRedRocketLauncher
   if (t != nobody)
   [
     if (distance t < detection-range)
-    [ launch-rocket towards t 
+    [ if ([breed] of t = Bases) [launch-rocket towards t ]
       launch-faf t   
     ]
     
@@ -162,6 +162,10 @@ to goRedBase
   if (n = 0)[ plokwa-createSuicide ]
   let t one-of perceive-specific-robots2 ennemy1 ennemy2 rocketlaunchers
   if (t != nobody) [
+    launch-faf t
+  ]
+  set t one-of perceive-specific-robots2 ennemy1 ennemy2 harvesters
+  if (t != nobody) [
     launch-rocket towards t
   ]
   let c count perceive-specific-robots color Harvesters
@@ -171,7 +175,8 @@ to goRedBase
   if ((ticks mod (2400 + mem4) = 0) and (energy > 15000)) [ new-RocketLauncher 1 self set mem4 random 200 ]
   if ((ticks mod (1000 + mem4) = 0) and (energy > 30000)) [ new-RocketLauncher 1 self  ]
   
-  if (nb-missiles < 100) and (energy > 1000) [ new-missile 100 ]  
+  if (nb-missiles < 100) and (energy > 1000) [ new-missile 100 ]
+  if (nb-fafs < 10) and (energy > 20000) [ new-faf 1 ]    
 end
 
 to plokwa-createSuicide
@@ -259,7 +264,7 @@ to plokwa-go-back-to-harvest
   let b mem3
   if (b != nobody) [
     ;; si le robot est à moins de 6 de la base
-    ifelse (distance b < 6)
+    ifelse (distance b < 7)
       [ 
         plant-seeds color max-seeds
         set heading towards b - 45 - random 90
